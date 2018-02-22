@@ -16,7 +16,46 @@ server.get('/', function(req, res) {
   res.status(200).json({ api: 'running' });
 });
 
-mongoose.connect('mongodb://localhost/library').then(
+server.get('/authors', (req, res) => {
+  // Book === to your model
+  Author.find()// still a query chaining diff filtering options
+    .select('firstName lastName')
+    // .limit(5)
+    // .sort('firstName') -'firstName' --> desc
+    // .or([{ firstName: 'pramod'}, {firstName: 'kent'}])
+    .populate('authors', 'firstName lastName') // book model property
+    // .select('createdOn')...any valid field 'title'
+    .then(books => {
+      //default to 200
+      res.status(200).json(books);
+    })
+    .catch(error => {
+      res.status(500).json({ error })
+    })
+})
+
+server.get('/books2', (req, res) => {
+  // Book === to your model
+  // const firstName = req.query.first.toLowerCase();
+  Author.find({ firstName: 'Kent'})
+    // still a query
+    .select('_id')
+    // .populate('authors', 'firstName lastName') // book model property
+    // .select('createdOn')...any valid field 'title'
+    .then(ids => {
+      Book.find()
+        .where('authors')
+        .in(ids)
+        .populate('authors', 'firstName lastName')
+        .then(books => res.status(200).json(books))
+      //default to 200
+    })
+    .catch(error => {
+      res.status(500).json({ error })
+    })
+})
+
+mongoose.connect('mongodb://localhost/cs6').then(
   () => {
     const port = process.env.PORT || 3000;
     server.listen(port);

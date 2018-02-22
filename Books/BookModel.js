@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const ObjectId = mongoose.Schema.Types.ObjectId;
+
 require('../Authors/AuthorModel.js');
 
 const BookSchema = new mongoose.Schema({
@@ -17,7 +19,8 @@ const BookSchema = new mongoose.Schema({
     min: 0,
     default: 0,
   },
-  authors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Author' }],
+  // use ref to avoid making copies and lots of changes?
+  authors: [{ type: ObjectId, ref: 'Author' }],
   createdOn: { type: Date, default: Date.now },
 });
 
